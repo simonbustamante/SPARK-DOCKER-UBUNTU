@@ -1,0 +1,16 @@
+{
+    "type": "struct",
+    "fields": [
+        {"name": "accountid", "type": "string"},
+        {"name": "accounttype", "type": "string"},
+        {"name": "partyroleid", "type": "string"},
+        {"name": "accountalternateid", "type": "string"},
+        {"name": "accountserialnumber", "type": "string"},
+        {"name": "status", "type": "string"},
+        {"name": "addressid", "type": "string"},
+        {"name": "fromdate", "type": "string"},
+        {"name": "lastupdate", "type": "string"},
+        {"name": "sourceid", "type": "string"},
+        {"name": "rownum", "type": "string"}
+    ]
+}

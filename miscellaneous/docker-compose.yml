@@ -1,0 +1,133 @@
+version: '3.7'
+services:
+  master:
+    container_name: master
+    build:
+      context: .
+      dockerfile: /app/miscellaneous/ubuntu/master/Dockerfile
+    ports:
+      - 8080:8080
+      - 7077:7077
+    volumes_from:
+      - spark-datastore
+  slave-1:
+    container_name: slave-1
+    build:
+      context: .
+      dockerfile: /app/miscellaneous/ubuntu/slave/Dockerfile
+    links:
+      - master
+    volumes_from:
+      - spark-datastore
+    environment:
+      SPARK_MASTER_URL: spark://master:7077
+      MASTER_PORT_7077_TCP_ADDR: master
+      MASTER_PORT_7077_TCP_PORT: 7077
+  slave-2:
+    container_name: slave-2
+    build:
+      context: .
+      dockerfile: /app/miscellaneous/ubuntu/slave/Dockerfile
+    links:
+      - master
+    volumes_from:
+      - spark-datastore
+    environment:
+      SPARK_MASTER_URL: spark://master:7077
+      MASTER_PORT_7077_TCP_ADDR: master
+      MASTER_PORT_7077_TCP_PORT: 7077
+  slave-3:
+    container_name: slave-3
+    build:
+      context: .
+      dockerfile: /app/miscellaneous/ubuntu/slave/Dockerfile
+    links:
+      - master
+    volumes_from:
+      - spark-datastore
+    environment:
+      SPARK_MASTER_URL: spark://master:7077
+      MASTER_PORT_7077_TCP_ADDR: master
+      MASTER_PORT_7077_TCP_PORT: 7077
+  spark-datastore:
+    container_name: datastore
+    build:
+      context: .
+      dockerfile: miscellaneous/ubuntu/datastore/Dockerfile
+    volumes:
+      - /app
+  submit-1:
+    container_name: submit-1
+    build:
+      context: .
+      dockerfile: /app/miscellaneous/ubuntu/submit/Dockerfile
+    environment:
+      AWSAccessKey: ${AWSAccessKey}
+      AWSSecretKey: ${AWSSecretKey}
+      AWSSessionToken: "${AWSSessionToken}"
+      AWS_REGION: ${AWS_REGION}
+      INPUT_PATH: ${INPUT_PATH}
+      SCHEMA_PATH: ${SCHEMA_PATH}
+      SERVER: ${SERVER}
+      UID: "${UID}"
+      PASSWORD: "${PASSWORD}"
+      DB: "${DB}"
+      #XConection: ${XConection}
+      Query: ${Query}
+      ConnectorType: "${ConnectorType}"
+      driverClassPath: "${driverClassPath}"
+      Table: ${Table}
+      Country: "${Country}"
+      Route: "${Route}"
+      #TimePeriod: "${TimePeriod}"
+      BucketName: "${BucketName}"
+      BucketRoute: "${BucketRoute}"
+      #Bucket: "${Bucket}"
+      #FileName: "${FileName}"
+      ChunkSize: "${ChunkSize}"
+      Driver: "${Driver}"
+      Port: "${Port}"
+    command: [
+        "spark-submit", 
+        #"--packages","org.apache.hadoop:hadoop-aws:3.3.5",
+        "--master", "spark://master:7077",
+        "--deploy-mode", "client",
+        "--conf","spark.driver.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf","spark.executor.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf", "spark.driver.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true -Dcom.amazonaws.services.s3.enforceV4=true -Dcom.amazonaws.services.s3.useRequestSignature=false",
+        "--driver-class-path", "${driverClassPath}",
+        #"--executor-memory", "4g", 
+        #"--driver-memory", "2g", 
+        "/app/uploadParquetToS3.py",
+        "-S","${SERVER}",
+        "-U","${UID}",
+        "-P","${PASSWORD}",
+        "-DB","${DB}",
+        #"-X","${XConection}",
+        "-Q","${Query}",
+        "-T","${Table}",
+        "-C","${Country}",
+        "-R","${Route}",
+        #"-PE","${TimePeriod}",
+        "-AA","${AWSAccessKey}",
+        "-AS","${AWSSecretKey}",
+        "-TK","${AWSSessionToken}",
+        "-B","${BucketName}",
+        "-BR","${BucketRoute}",
+        #"-BK","${Bucket}",
+        #"-FN","${FileName}",
+        "-CS","${ChunkSize}",
+        "-CT","${ConnectorType}",
+        "-DR","${Driver}",
+        "-PO","${Port}"
+      ]
+    links:
+      - master
+    volumes_from:
+      - spark-datastore
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./:/app
+volumes:
+  spark-datastore:

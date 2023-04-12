@@ -1,0 +1,88 @@
+version: '3.7'
+services:
+  master:
+    container_name: master
+    build:
+      context: .
+      dockerfile: miscellaneous/ubuntu/master/Dockerfile
+    ports:
+      - 8080:8080
+      - 7077:7077
+    volumes_from:
+      - spark-datastore
+  slave-1:
+    container_name: slave-1
+    build:
+      context: .
+      dockerfile: miscellaneous/ubuntu/slave/Dockerfile
+    links:
+      - master
+    volumes_from:
+      - spark-datastore
+    environment:
+      SPARK_MASTER_URL: spark://master:7077
+      MASTER_PORT_7077_TCP_ADDR: master
+      MASTER_PORT_7077_TCP_PORT: 7077
+  spark-datastore:
+    container_name: spark-datastore
+    build:
+      context: .
+      dockerfile: miscellaneous/ubuntu/datastore/Dockerfile
+    volumes:
+      - /app
+  submit-1:
+    container_name: submit-1
+    build:
+      context: .
+      dockerfile: miscellaneous/ubuntu/submit/Dockerfile
+    environment:
+      AWSAccessKey: ${AWSAccessKey}
+      AWSSecretKey: ${AWSSecretKey}
+      AWSSessionToken: "${AWSSessionToken}"
+      AWS_REGION: ${AWS_REGION}
+      INPUT_PATH: ${INPUT_PATH}
+      SCHEMA_PATH: ${SCHEMA_PATH}
+    command: [
+        "spark-submit", 
+        #"--packages","org.apache.hadoop:hadoop-aws:3.3.5",
+        "--conf","spark.driver.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf","spark.executor.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf", "spark.driver.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true -Dcom.amazonaws.services.s3.enforceV4=true -Dcom.amazonaws.services.s3.useRequestSignature=false",
+        "--driver-class-path", "${driverClassPath}",
+        "--jars", "${driverClassPath},/app/libs/hadoop-aws-3.3.5.jar,/app/libs/hadoop-common-3.3.5.jar", #,/app/libs/aws-java-sdk-1.12.447.jar",
+        "--deploy-mode", "client",
+        "--master", "local[*]", #"spark://master:7077", #local[*]
+        "--executor-memory", "4g", 
+        "--driver-memory", "2g",
+        #"--executor-cores","1", 
+        "/app/uploadParquetToS3.py",
+        "-S","${SERVER}",
+        "-U","${UID}",
+        "-P","${PASSWORD}",
+        "-DB","${DB}",
+        "-Q","${Query}",
+        "-T","${Table}",
+        "-C","${Country}",
+        "-R","${Route}",
+        #"-PE","${TimePeriod}",
+        "-AA","${AWSAccessKey}",
+        "-AS","${AWSSecretKey}",
+        "-TK","${AWSSessionToken}",
+        "-B","${BucketName}",
+        "-BR","${BucketRoute}",
+        "-CS","${ChunkSize}",
+        "-CT","${ConnectorType}",
+        "-DR","${Driver}",
+        "-PO","${Port}"
+      ]
+    links:
+      - master
+    volumes_from:
+      - spark-datastore
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./:/app
+
+volumes:
+  spark-datastore:

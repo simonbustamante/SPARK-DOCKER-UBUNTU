@@ -1,0 +1,38 @@
+version: '3.9'
+
+networks:
+  uploadParquetToS3:
+    driver: bridge
+
+services:
+  oracle:
+    image: wnameless/oracle-xe-11g-r2
+    networks:
+      - uploadParquetToS3
+    ports:
+      - "1521:1521"
+      - "8080:8080"
+    environment:
+      - ORACLE_ALLOW_REMOTE=true
+      - ORACLE_DISABLE_ASYNCH_IO=true
+      - ORACLE_ENABLE_XDB=true
+      - ORACLE_PASSWORD=oracle
+    volumes:
+      - oracle_data:/u01/app/oracle/oradata/XE
+    restart: always
+
+volumes:
+  oracle_data:
+
+x-logging:
+  options:
+    max-size: "12m"
+    max-file: "5"
+  
+x-docker-options:
+  - "--ulimit nofile=8192:8192"
+  - "--log-driver=json-file"
+  - "--log-opt max-size=10m"
+  - "--log-opt max-file=3"
+
+x-compose-http-timeout: 120

@@ -1,0 +1,450 @@
+version: '3.9'
+
+networks:
+  uploadParquetToS3:
+    driver: bridge
+
+services:
+  to-s3-1:
+    container_name:  to-s3-1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - uploadParquetToS3
+    environment:
+      AWSAccessKey: ${AWSAccessKey}
+      AWSSecretKey: ${AWSSecretKey}
+      AWSSessionToken: "${AWSSessionToken}"
+      AWS_REGION: ${AWS_REGION}
+      INPUT_PATH: ${INPUT_PATH}
+      SCHEMA_PATH: ${SCHEMA_PATH}
+      SERVER: ${SERVER}
+      UID: "${UID}"
+      PASSWORD: "${PASSWORD}"
+      DB: "${DB}"
+      #XConection: ${XConection}
+      #Query: ${Query}
+      ConnectorType: "${ConnectorType}"
+      driverClassPath: "${driverClassPath}"
+      Table: ${Table}
+      Country: "${Country}"
+      Route: "${Route}"
+      #TimePeriod: "${TimePeriod}"
+      BucketName: "${BucketName}"
+      BucketRoute: "${BucketRoute}"
+      #Bucket: "${Bucket}"
+      #FileName: "${FileName}"
+      ChunkSize: "${ChunkSize}"
+      #Driver: "${Driver}"
+      Port: "${Port}"
+    deploy:
+      resources:
+        limits:
+          memory: 6g # Limita la cantidad de memoria del contenedor a 6GB
+    volumes:
+      - ./:/app
+    command: [
+        "spark-submit", 
+        #"--packages","org.apache.hadoop:hadoop-aws:3.3.5",
+        "--master", "local[*]",
+        "--deploy-mode", "client",
+        "--conf","spark.driver.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf","spark.executor.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf", "spark.driver.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true -Dcom.amazonaws.services.s3.enforceV4=true -Dcom.amazonaws.services.s3.useRequestSignature=false",
+        "--driver-class-path", "${driverClassPath}",
+        "--executor-memory", "4g", 
+        "--driver-memory", "2g", 
+        "/app/uploadParquetToS3.py",
+        "-S","${SERVER}",
+        "-U","${UID}",
+        "-P","${PASSWORD}",
+        "-DB","${DB}",
+        #"-X","${XConection}",
+        #"-Q","${Query}",
+        "-T","${Table}",
+        "-C","${Country}",
+        "-R","${Route}",
+        #"-PE","${TimePeriod}",
+        "-AA","${AWSAccessKey}",
+        "-AS","${AWSSecretKey}",
+        "-TK","${AWSSessionToken}",
+        "-B","${BucketName}",
+        "-BR","${BucketRoute}",
+        #"-BK","${Bucket}",
+        #"-FN","${FileName}",
+        "-CS","${ChunkSize}",
+        "-CT","${ConnectorType}",
+        "-DR","${Driver}",
+        "-PO","${Port}"
+      ]
+
+  to-s3-2:
+    container_name:  to-s3-2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - uploadParquetToS3
+    environment:
+      AWSAccessKey: ${AWSAccessKey}
+      AWSSecretKey: ${AWSSecretKey}
+      AWSSessionToken: "${AWSSessionToken}"
+      AWS_REGION: ${AWS_REGION}
+      INPUT_PATH: ${INPUT_PATH}
+      SCHEMA_PATH: ${SCHEMA_PATH}
+      SERVER: ${SERVER}
+      UID: "${UID}"
+      PASSWORD: "${PASSWORD}"
+      DB: "${DB}"
+      #XConection: ${XConection}
+      #Query: ${Query}
+      ConnectorType: "${ConnectorType}"
+      driverClassPath: "${driverClassPath}"
+      Table: ${Table2}
+      Country: "${Country}"
+      Route: "${Route}"
+      #TimePeriod: "${TimePeriod}"
+      BucketName: "${BucketName}"
+      BucketRoute: "${BucketRoute}"
+      #Bucket: "${Bucket}"
+      #FileName: "${FileName}"
+      ChunkSize: "${ChunkSize}"
+      #Driver: "${Driver}"
+      Port: "${Port}"
+    deploy:
+      resources:
+        limits:
+          memory: 6g # Limita la cantidad de memoria del contenedor a 6GB
+    volumes:
+      - ./:/app
+    command: [
+        "spark-submit", 
+        #"--packages","org.apache.hadoop:hadoop-aws:3.3.5",
+        "--master", "local[*]",
+        "--deploy-mode", "client",
+        "--conf","spark.driver.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf","spark.executor.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf", "spark.driver.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true -Dcom.amazonaws.services.s3.enforceV4=true -Dcom.amazonaws.services.s3.useRequestSignature=false",
+        "--driver-class-path", "${driverClassPath}",
+        "--executor-memory", "4g", 
+        "--driver-memory", "2g", 
+        "/app/uploadParquetToS3.py",
+        "-S","${SERVER}",
+        "-U","${UID}",
+        "-P","${PASSWORD}",
+        "-DB","${DB}",
+        #"-X","${XConection}",
+        #"-Q","${Query}",
+        "-T","${Table2}",
+        "-C","${Country}",
+        "-R","${Route}",
+        #"-PE","${TimePeriod}",
+        "-AA","${AWSAccessKey}",
+        "-AS","${AWSSecretKey}",
+        "-TK","${AWSSessionToken}",
+        "-B","${BucketName}",
+        "-BR","${BucketRoute}",
+        #"-BK","${Bucket}",
+        #"-FN","${FileName}",
+        "-CS","${ChunkSize}",
+        "-CT","${ConnectorType}",
+        "-DR","${Driver}",
+        "-PO","${Port}"
+      ]
+
+  to-s3-3:
+    container_name:  to-s3-3
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - uploadParquetToS3
+    environment:
+      AWSAccessKey: ${AWSAccessKey}
+      AWSSecretKey: ${AWSSecretKey}
+      AWSSessionToken: "${AWSSessionToken}"
+      AWS_REGION: ${AWS_REGION}
+      INPUT_PATH: ${INPUT_PATH}
+      SCHEMA_PATH: ${SCHEMA_PATH}
+      SERVER: ${SERVER}
+      UID: "${UID}"
+      PASSWORD: "${PASSWORD}"
+      DB: "${DB}"
+      #XConection: ${XConection}
+      #Query: ${Query}
+      ConnectorType: "${ConnectorType}"
+      driverClassPath: "${driverClassPath}"
+      Table: ${Table3}
+      Country: "${Country}"
+      Route: "${Route}"
+      #TimePeriod: "${TimePeriod}"
+      BucketName: "${BucketName}"
+      BucketRoute: "${BucketRoute}"
+      #Bucket: "${Bucket}"
+      #FileName: "${FileName}"
+      ChunkSize: "${ChunkSize}"
+      #Driver: "${Driver}"
+      Port: "${Port}"
+    deploy:
+      resources:
+        limits:
+          memory: 6g # Limita la cantidad de memoria del contenedor a 6GB
+    volumes:
+      - ./:/app
+    command: [
+        "spark-submit", 
+        #"--packages","org.apache.hadoop:hadoop-aws:3.3.5",
+        "--master", "local[*]",
+        "--deploy-mode", "client",
+        "--conf","spark.driver.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf","spark.executor.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf", "spark.driver.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true -Dcom.amazonaws.services.s3.enforceV4=true -Dcom.amazonaws.services.s3.useRequestSignature=false",
+        "--driver-class-path", "${driverClassPath}",
+        "--executor-memory", "4g", 
+        "--driver-memory", "2g", 
+        "/app/uploadParquetToS3.py",
+        "-S","${SERVER}",
+        "-U","${UID}",
+        "-P","${PASSWORD}",
+        "-DB","${DB}",
+        #"-X","${XConection}",
+        #"-Q","${Query}",
+        "-T","${Table3}",
+        "-C","${Country}",
+        "-R","${Route}",
+        #"-PE","${TimePeriod}",
+        "-AA","${AWSAccessKey}",
+        "-AS","${AWSSecretKey}",
+        "-TK","${AWSSessionToken}",
+        "-B","${BucketName}",
+        "-BR","${BucketRoute}",
+        #"-BK","${Bucket}",
+        #"-FN","${FileName}",
+        "-CS","${ChunkSize}",
+        "-CT","${ConnectorType}",
+        "-DR","${Driver}",
+        "-PO","${Port}"
+      ]
+
+  to-s3-4:
+    container_name:  to-s3-4
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - uploadParquetToS3
+    environment:
+      AWSAccessKey: ${AWSAccessKey}
+      AWSSecretKey: ${AWSSecretKey}
+      AWSSessionToken: "${AWSSessionToken}"
+      AWS_REGION: ${AWS_REGION}
+      INPUT_PATH: ${INPUT_PATH}
+      SCHEMA_PATH: ${SCHEMA_PATH}
+      SERVER: ${SERVER}
+      UID: "${UID}"
+      PASSWORD: "${PASSWORD}"
+      DB: "${DB}"
+      #XConection: ${XConection}
+      #Query: ${Query}
+      ConnectorType: "${ConnectorType}"
+      driverClassPath: "${driverClassPath}"
+      Table: ${Table4}
+      Country: "${Country}"
+      Route: "${Route}"
+      #TimePeriod: "${TimePeriod}"
+      BucketName: "${BucketName}"
+      BucketRoute: "${BucketRoute}"
+      #Bucket: "${Bucket}"
+      #FileName: "${FileName}"
+      ChunkSize: "${ChunkSize}"
+      #Driver: "${Driver}"
+      Port: "${Port}"
+    deploy:
+      resources:
+        limits:
+          memory: 6g # Limita la cantidad de memoria del contenedor a 6GB
+    volumes:
+      - ./:/app
+    command: [
+        "spark-submit", 
+        #"--packages","org.apache.hadoop:hadoop-aws:3.3.5",
+        "--master", "local[*]",
+        "--deploy-mode", "client",
+        "--conf","spark.driver.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf","spark.executor.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf", "spark.driver.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true -Dcom.amazonaws.services.s3.enforceV4=true -Dcom.amazonaws.services.s3.useRequestSignature=false",
+        "--driver-class-path", "${driverClassPath}",
+        "--executor-memory", "4g", 
+        "--driver-memory", "2g", 
+        "/app/uploadParquetToS3.py",
+        "-S","${SERVER}",
+        "-U","${UID}",
+        "-P","${PASSWORD}",
+        "-DB","${DB}",
+        #"-X","${XConection}",
+        #"-Q","${Query}",
+        "-T","${Table4}",
+        "-C","${Country}",
+        "-R","${Route}",
+        #"-PE","${TimePeriod}",
+        "-AA","${AWSAccessKey}",
+        "-AS","${AWSSecretKey}",
+        "-TK","${AWSSessionToken}",
+        "-B","${BucketName}",
+        "-BR","${BucketRoute}",
+        #"-BK","${Bucket}",
+        #"-FN","${FileName}",
+        "-CS","${ChunkSize}",
+        "-CT","${ConnectorType}",
+        "-DR","${Driver}",
+        "-PO","${Port}"
+      ]
+
+  to-s3-5:
+    container_name:  to-s3-5
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - uploadParquetToS3
+    environment:
+      AWSAccessKey: ${AWSAccessKey}
+      AWSSecretKey: ${AWSSecretKey}
+      AWSSessionToken: "${AWSSessionToken}"
+      AWS_REGION: ${AWS_REGION}
+      INPUT_PATH: ${INPUT_PATH}
+      SCHEMA_PATH: ${SCHEMA_PATH}
+      SERVER: ${SERVER}
+      UID: "${UID}"
+      PASSWORD: "${PASSWORD}"
+      DB: "${DB}"
+      #XConection: ${XConection}
+      #Query: ${Query}
+      ConnectorType: "${ConnectorType}"
+      driverClassPath: "${driverClassPath}"
+      Table: ${Table5}
+      Country: "${Country}"
+      Route: "${Route}"
+      #TimePeriod: "${TimePeriod}"
+      BucketName: "${BucketName}"
+      BucketRoute: "${BucketRoute}"
+      #Bucket: "${Bucket}"
+      #FileName: "${FileName}"
+      ChunkSize: "${ChunkSize}"
+      #Driver: "${Driver}"
+      Port: "${Port}"
+    deploy:
+      resources:
+        limits:
+          memory: 6g # Limita la cantidad de memoria del contenedor a 6GB
+    volumes:
+      - ./:/app
+    command: [
+        "spark-submit", 
+        #"--packages","org.apache.hadoop:hadoop-aws:3.3.5",
+        "--master", "local[*]",
+        "--deploy-mode", "client",
+        "--conf","spark.driver.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf","spark.executor.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf", "spark.driver.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true -Dcom.amazonaws.services.s3.enforceV4=true -Dcom.amazonaws.services.s3.useRequestSignature=false",
+        "--driver-class-path", "${driverClassPath}",
+        "--executor-memory", "4g", 
+        "--driver-memory", "2g", 
+        "/app/uploadParquetToS3.py",
+        "-S","${SERVER}",
+        "-U","${UID}",
+        "-P","${PASSWORD}",
+        "-DB","${DB}",
+        #"-X","${XConection}",
+        #"-Q","${Query}",
+        "-T","${Table5}",
+        "-C","${Country}",
+        "-R","${Route}",
+        #"-PE","${TimePeriod}",
+        "-AA","${AWSAccessKey}",
+        "-AS","${AWSSecretKey}",
+        "-TK","${AWSSessionToken}",
+        "-B","${BucketName}",
+        "-BR","${BucketRoute}",
+        #"-BK","${Bucket}",
+        #"-FN","${FileName}",
+        "-CS","${ChunkSize}",
+        "-CT","${ConnectorType}",
+        "-DR","${Driver}",
+        "-PO","${Port}"
+      ]
+
+  to-s3-6:
+    container_name:  to-s3-6
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - uploadParquetToS3
+    environment:
+      AWSAccessKey: ${AWSAccessKey}
+      AWSSecretKey: ${AWSSecretKey}
+      AWSSessionToken: "${AWSSessionToken}"
+      AWS_REGION: ${AWS_REGION}
+      INPUT_PATH: ${INPUT_PATH}
+      SCHEMA_PATH: ${SCHEMA_PATH}
+      SERVER: ${SERVER}
+      UID: "${UID}"
+      PASSWORD: "${PASSWORD}"
+      DB: "${DB}"
+      #XConection: ${XConection}
+      #Query: ${Query}
+      ConnectorType: "${ConnectorType}"
+      driverClassPath: "${driverClassPath}"
+      Table: ${Table6}
+      Country: "${Country}"
+      Route: "${Route}"
+      #TimePeriod: "${TimePeriod}"
+      BucketName: "${BucketName}"
+      BucketRoute: "${BucketRoute}"
+      #Bucket: "${Bucket}"
+      #FileName: "${FileName}"
+      ChunkSize: "${ChunkSize}"
+      #Driver: "${Driver}"
+      Port: "${Port}"
+    deploy:
+      resources:
+        limits:
+          memory: 6g # Limita la cantidad de memoria del contenedor a 6GB
+    volumes:
+      - ./:/app
+    command: [
+        "spark-submit", 
+        #"--packages","org.apache.hadoop:hadoop-aws:3.3.5",
+        "--master", "local[*]",
+        "--deploy-mode", "client",
+        "--conf","spark.driver.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf","spark.executor.extraClassPath=/app/libs/hadoop-aws-3.3.5.jar",
+        "--conf", "spark.driver.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true -Dcom.amazonaws.services.s3.enforceV4=true -Dcom.amazonaws.services.s3.useRequestSignature=false",
+        "--driver-class-path", "${driverClassPath}",
+        "--executor-memory", "4g", 
+        "--driver-memory", "2g", 
+        "/app/uploadParquetToS3.py",
+        "-S","${SERVER}",
+        "-U","${UID}",
+        "-P","${PASSWORD}",
+        "-DB","${DB}",
+        #"-X","${XConection}",
+        #"-Q","${Query}",
+        "-T","${Table6}",
+        "-C","${Country}",
+        "-R","${Route}",
+        #"-PE","${TimePeriod}",
+        "-AA","${AWSAccessKey}",
+        "-AS","${AWSSecretKey}",
+        "-TK","${AWSSessionToken}",
+        "-B","${BucketName}",
+        "-BR","${BucketRoute}",
+        #"-BK","${Bucket}",
+        #"-FN","${FileName}",
+        "-CS","${ChunkSize}",
+        "-CT","${ConnectorType}",
+        "-DR","${Driver}",
+        "-PO","${Port}"
+      ]
